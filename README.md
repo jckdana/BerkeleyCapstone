@@ -195,8 +195,8 @@ as a model feature does not leak the target.
 
 ## Model evaluation and results
 
-**Gradient Boosting is the best model**, with test MAE **$71.41** and test R² (log) **0.8217**
-against a naive baseline of $165.83 — a **56.9% reduction** in typical pricing error. Predictions
+**Gradient Boosting is the best model**, with test MAE **$71.37** and test R² (log) **0.8218**
+against a naive baseline of $165.83 — a **57.0% reduction** in typical pricing error. Predictions
 land within about $25 of the actual price 40% of the time and within $50 at about 61% of the time.
 
 **Two interpretation cautions are documented in the notebook rather than glossed over:**
