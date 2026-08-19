@@ -23,17 +23,17 @@ the nightly price with a typical error of **$71 per night (MAE)**, a **57% reduc
 error you get from simply charging the citywide median, and lands within $50 of the true price on
 **61%** of listings.
 
-| Model | CV R² (log) | Test R² (log) | Test MAE |
-|---|---|---|---|
-| Baseline (median price) | — | — | $165.83 |
-| Linear Regression | 0.7252 | — | — |
-| Ridge (α = 0.1) | 0.7252 | — | — |
-| Lasso (α = 0.0001) | 0.7241 | — | — |
-| Random Forest | 0.8023 | — | — |
-| **Gradient Boosting** | **0.8314** | **0.8217** | **$71.41** |
+| Model | CV R² (log) | Train R² (log) | Test R² (log) | Test RMSE | Test MAE |
+|---|---|---|---|---|---|
+| **Gradient Boosting** | **0.8314** | 0.9442 | **0.8218** | **$130.42** | **$71.37** |
+| Random Forest | 0.8023 | 0.9742 | 0.8017 | $138.22 | $73.89 |
+| Lasso (α = 0.0001) | 0.7241 | 0.7348 | 0.6991 | $159.36 | $94.80 |
+| Ridge (α = 0.1) | 0.7253 | 0.7363 | 0.6990 | $160.23 | $95.05 |
+| Linear Regression | 0.7253 | 0.7363 | 0.6989 | $160.33 | $95.09 |
+| Baseline (median price) | — | −0.0005 | −0.0001 | $236.46 | $165.83 |
 
 The tree easily beats the regularized linear models (CV R² 0.83 vs 0.73), which tells us
-the price surface is non-linear — the value of an extra bedroom is not constant, it depends on
+the price surface is non-linear — the value of an extra bedroom is not constant; it depends on
 the property. All five models rank the same features at the top, which is good evidence the signal
 is real rather than an artifact of one algorithm. Lasso retained 6 of 6 engineered features, which
 means that the feature engineering (bathroom parsing, amenity count, host tenure, shared-bath flag,
@@ -67,8 +67,8 @@ the market charges into a model of what a host should charge.
 
 Austin is one of the most competitive short-term rental markets in the entire United States, and the pricing
 is the lever hosts control most directly. Yet it is the decision they have the least information
-about. A host listing a 2-bedroom bungalow in 78704 has no real reliable way to know whether $210 a night
-is aggressive or generous amount, and the cost of being wrong compounds every night of the year. A model
+about. A host listing a 2-bedroom bungalow in 78704 has no real, reliable way to know whether $210 a night
+is an aggressive or generous amount, and the cost of being wrong compounds every night of the year. A model
 that explains which attributes carry price, and by how much, converts pricing from a gut call
 into an estimate with a known error bar — for hosts, property managers, and prospective investors
 alike.
@@ -82,6 +82,22 @@ Two sub-questions follow:
 
 1. Do Austin listings separate into distinct market segments that should be priced differently?
 2. Is there exploitable time-based demand seasonality that should modulate a listing's base price?
+
+### Model outcomes and predictions
+
+This is also a supervised regression problem. This model takes a listing's attributes as an input and 
+outputs a continuous value. This value is the predicted nightly price in dollars. The models are fit 
+on`log(1 + price)` and back-transformed, so the output is a dollar figure a host can act on.
+
+My project also has unsupervised learning for another purpose: PCA, which is then followed by K-Means
+groups listings into market segments. Prices are also never shown to either of the steps, so the segment
+label is an actual genuine model input rather than just another restatement of the target. 
+
+| Component | Type of learning | Algorithms | Output |
+|---|---|---|---|
+| Price prediction | **Supervised — regression** | Linear Regression, Ridge, Lasso, Random Forest, Gradient Boosting | Predicted nightly price ($) |
+| Market segmentation | **Unsupervised — clustering** | PCA + K-Means | Segment label (one of four) |
+| Demand seasonality | Time-series decomposition | STL, ARIMA | Day-of-week demand index |
 
 ### Relationship to the original problem statement (Assignment 11.1)
 
